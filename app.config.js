@@ -73,10 +73,10 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: IS_DEV
-        ? 'com.belle.app.dev'
+        ? 'com.dreamswonder.appcita.dev'
         : IS_PREVIEW
-        ? 'com.belle.app.preview'
-        : 'com.belle.app',
+        ? 'com.dreamswonder.appcita'
+        : 'com.dreamswonder.appcita',
       infoPlist: {
         NSCameraUsageDescription: 'Belle needs camera access for video calls with your matches.',
         NSMicrophoneUsageDescription: 'Belle needs microphone access for voice and video calls.',
