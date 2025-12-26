@@ -10,6 +10,7 @@
     },
     "preview": {
       "distribution": "store",
+      "autoIncrement": true,
       "env": {
         "APP_VARIANT": "preview"
       },

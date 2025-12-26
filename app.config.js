@@ -77,6 +77,7 @@ export default {
         : IS_PREVIEW
         ? 'com.dreamswonder.appcita'
         : 'com.dreamswonder.appcita',
+      buildNumber: '2',
       infoPlist: {
         NSCameraUsageDescription: 'Belle needs camera access for video calls with your matches.',
         NSMicrophoneUsageDescription: 'Belle needs microphone access for voice and video calls.',
@@ -94,6 +95,7 @@ export default {
         : IS_PREVIEW
         ? 'com.dreamswonder.appcita'
         : 'com.dreamswonder.appcita',
+      versionCode: 2,
       permissions: [
         'android.permission.CAMERA',
         'android.permission.RECORD_AUDIO',
