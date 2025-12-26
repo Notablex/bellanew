@@ -13,10 +13,8 @@
       "env": {
         "APP_VARIANT": "preview"
       },
-      "node": "20.x.x",
-      "npm": {
-        "enabled": true
-      },
+      "node": "20.11.0",
+      "cli": "npm",
       "ios": {
         "simulator": false,
         "buildConfiguration": "Release"
