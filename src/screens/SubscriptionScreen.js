@@ -28,7 +28,7 @@ import {
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const ACCENT_COLOR = '#000000';
-const GOLD_COLOR = '#D4AF37';
+const GOLD_COLOR = '#FFCC30';
 const LIGHT_GRAY = '#F3F4F6';
 
 // Dummy plans for when API is not available
@@ -39,7 +39,7 @@ const DUMMY_PLANS = [
     displayName: 'Free',
     description: 'Basic features to get started',
     monthlyPrice: 0,
-    yearlyPrice: 0,
+    threeMonthPrice: 0,
     features: [
       'Limited daily matches',
       'Basic messaging',
@@ -51,9 +51,8 @@ const DUMMY_PLANS = [
     name: 'premium',
     displayName: 'Premium',
     description: 'Unlock all features',
-    monthlyPrice: 19.99,
-    yearlyPrice: 119.99,
-    yearlySavings: 119.89,
+    monthlyPrice: 29.99,
+    threeMonthPrice: 139.99,
     features: [
       'Unlimited matches',
       'See who likes you',
@@ -64,24 +63,6 @@ const DUMMY_PLANS = [
     ],
     popular: true,
   },
-  {
-    id: 'vip',
-    name: 'vip',
-    displayName: 'VIP',
-    description: 'The ultimate experience',
-    monthlyPrice: 39.99,
-    yearlyPrice: 239.99,
-    yearlySavings: 239.89,
-    features: [
-      'Everything in Premium',
-      'Profile boost monthly',
-      'Super likes daily',
-      'Undo swipes',
-      'Travel mode',
-      'Priority support',
-      'Exclusive events access',
-    ],
-  },
 ];
 
 export default function SubscriptionScreen({ navigation }) {
@@ -90,7 +71,7 @@ export default function SubscriptionScreen({ navigation }) {
   const [storeProducts, setStoreProducts] = useState({}); // Map of productId -> StoreKit product
   const [currentSubscription, setCurrentSubscription] = useState(null);
   const [selectedPlan, setSelectedPlan] = useState(null);
-  const [billingCycle, setBillingCycle] = useState('MONTHLY');
+  const [billingCycle, setBillingCycle] = useState('MONTHLY'); // 'MONTHLY' or 'THREEMONTH'
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
   const [iapAvailable, setIapAvailable] = useState(false);
@@ -365,16 +346,15 @@ export default function SubscriptionScreen({ navigation }) {
   };
 
   const getPrice = (plan) => {
-    // Use App Store price display if available, otherwise fall back to stored price
-    if (billingCycle === 'YEARLY') {
-      return plan.yearlyPriceDisplay || `$${plan.yearlyPrice}`;
+    if (billingCycle === 'THREEMONTH') {
+      return plan.threeMonthPriceDisplay || `$${plan.threeMonthPrice}`;
     }
     return plan.monthlyPriceDisplay || `$${plan.monthlyPrice}`;
   };
 
   const getPriceAmount = (plan) => {
-    if (billingCycle === 'YEARLY') {
-      return plan.yearlyPriceAmount || plan.yearlyPrice;
+    if (billingCycle === 'THREEMONTH') {
+      return plan.threeMonthPriceAmount || plan.threeMonthPrice;
     }
     return plan.monthlyPriceAmount || plan.monthlyPrice;
   };
@@ -476,17 +456,7 @@ export default function SubscriptionScreen({ navigation }) {
 
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <LinearGradient
-          colors={['#1a1a1a', '#333333']}
-          style={styles.headerGradient}
-        >
-          <Ionicons name="diamond" size={48} color={GOLD_COLOR} />
-          <Text style={styles.headerTitle}>Upgrade to Premium</Text>
-          <Text style={styles.headerSubtitle}>
-            Get unlimited matches and exclusive features
-          </Text>
-        </LinearGradient>
-
+        
         {/* Billing Toggle */}
         <View style={styles.billingToggleContainer}>
           <TouchableOpacity
@@ -502,27 +472,24 @@ export default function SubscriptionScreen({ navigation }) {
                 billingCycle === 'MONTHLY' && styles.billingOptionTextSelected,
               ]}
             >
-              Monthly
+              1 Month
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.billingOption,
-              billingCycle === 'YEARLY' && styles.billingOptionSelected,
+              billingCycle === 'THREEMONTH' && styles.billingOptionSelected,
             ]}
-            onPress={() => setBillingCycle('YEARLY')}
+            onPress={() => setBillingCycle('THREEMONTH')}
           >
             <Text
               style={[
                 styles.billingOptionText,
-                billingCycle === 'YEARLY' && styles.billingOptionTextSelected,
+                billingCycle === 'THREEMONTH' && styles.billingOptionTextSelected,
               ]}
             >
-              Yearly
+              3 Months
             </Text>
-            <View style={styles.discountBadge}>
-              <Text style={styles.discountBadgeText}>-50%</Text>
-            </View>
           </TouchableOpacity>
         </View>
 
@@ -566,52 +533,38 @@ export default function SubscriptionScreen({ navigation }) {
 
       {/* Subscribe Button */}
       <View style={styles.bottomContainer}>
+        <Text style={{ fontWeight: 'bold', marginBottom: 8 }}>Choose Payment Method</Text>
         <TouchableOpacity
           style={[
             styles.subscribeButton,
             (isSubscribing || isRestoring || !selectedPlan || getPriceAmount(plans.find(p => p.id === selectedPlan) || {}) === 0) &&
               styles.subscribeButtonDisabled,
+            { marginBottom: 12, backgroundColor: '#635bff' }
+          ]}
+          onPress={() => {
+            // Stripe payment: redirect to website
+            Alert.alert('Stripe Payment', 'You will be redirected to the website to complete your payment via Stripe.');
+            // TODO: Implement actual redirect logic
+          }}
+          disabled={isSubscribing || isRestoring || !selectedPlan || getPriceAmount(plans.find(p => p.id === selectedPlan) || {}) === 0}
+        >
+          <Ionicons name="card" size={20} color="#FFFFFF" />
+          <Text style={styles.subscribeButtonText}>Pay with Stripe (Website)</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.subscribeButton,
+            (isSubscribing || isRestoring || !selectedPlan || getPriceAmount(plans.find(p => p.id === selectedPlan) || {}) === 0) &&
+              styles.subscribeButtonDisabled,
+            { backgroundColor: '#000000' }
           ]}
           onPress={handleSubscribe}
           disabled={isSubscribing || isRestoring || !selectedPlan || getPriceAmount(plans.find(p => p.id === selectedPlan) || {}) === 0}
         >
-          {isSubscribing ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
-          ) : (
-            <>
-              <Ionicons name="diamond" size={20} color="#FFFFFF" />
-              <Text style={styles.subscribeButtonText}>
-                {currentSubscription ? 'Change Plan' : 'Subscribe Now'}
-              </Text>
-            </>
-          )}
+          <Ionicons name="logo-apple" size={20} color="#FFFFFF" />
+          <Text style={styles.subscribeButtonText}>Pay with Apple</Text>
         </TouchableOpacity>
 
-        {/* Restore Purchases - Required by Apple */}
-        <View style={styles.bottomLinks}>
-          <TouchableOpacity
-            onPress={handleRestorePurchases}
-            disabled={isRestoring}
-            style={styles.restoreButton}
-          >
-            {isRestoring ? (
-              <ActivityIndicator size="small" color="#6B7280" />
-            ) : (
-              <Text style={styles.restoreText}>Restore Purchases</Text>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.skipText}>Maybe Later</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* IAP availability indicator (dev only) */}
-        {__DEV__ && (
-          <Text style={styles.devIndicator}>
-            {iapAvailable ? '✓ StoreKit Ready' : '⚠ Demo Mode (Expo Go)'}
-          </Text>
-        )}
       </View>
     </SafeAreaView>
   );
@@ -713,7 +666,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -12,
     left: 20,
-    backgroundColor: GOLD_COLOR,
+    backgroundColor: '#FFCC30', // Bumble yellow
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,

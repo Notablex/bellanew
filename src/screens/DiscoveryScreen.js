@@ -352,6 +352,7 @@ export default function DiscoveryScreen({ navigation, route }) {
         languages={languages}
         location={myLocation}
         setLocation={setMyLocation}
+        navigation={navigation}
       />
     </SafeAreaView>
   );

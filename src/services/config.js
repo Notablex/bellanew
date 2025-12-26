@@ -17,9 +17,8 @@ const DEFAULT_DEV_GATEWAY_URL = `http://${HOST}:4000`;
 const DEFAULT_DEV_USER_SERVICE_URL = `http://${HOST}:3001`;
 const DEFAULT_DEV_WS_URL = `ws://${HOST}:3005`;
 const DEFAULT_DEV_COMMUNICATION_SERVICE_URL = `http://${HOST}:3005`;
-const DEFAULT_DEV_INTERACTION_SERVICE_URL = `http://${HOST}:3003`; // Updated to 3003
-const DEFAULT_DEV_SUBSCRIPTION_SERVICE_URL = `http://${HOST}:3010`; // Updated to 3010
-const DEFAULT_DEV_NOTIFICATION_SERVICE_URL = `http://${HOST}:3006`; // Added Notification Service
+const DEFAULT_DEV_INTERACTION_SERVICE_URL = `ws://${HOST}:3457`;
+const DEFAULT_DEV_SUBSCRIPTION_SERVICE_URL = `http://${HOST}:3006`;
 
 // For physical device testing, replace localhost with your machine's IP:
 // Run `ipconfig getifaddr en0` (Mac) or `ipconfig` (Windows) to get your IP
@@ -40,14 +39,10 @@ export const config = {
   COMMUNICATION_SERVICE_URL: expoConfig.communicationServiceUrl || DEFAULT_DEV_COMMUNICATION_SERVICE_URL,
 
   // WebSocket for video/voice calls (Interaction Service)
-  // Note: Interaction service creates its own WS server, usually on the same port or handled via Upgrade
   INTERACTION_SERVICE_URL: expoConfig.interactionServiceUrl || DEFAULT_DEV_INTERACTION_SERVICE_URL,
 
   // Subscription Service (for Apple IAP)
   SUBSCRIPTION_SERVICE_URL: expoConfig.subscriptionServiceUrl || DEFAULT_DEV_SUBSCRIPTION_SERVICE_URL,
-
-  // Notification Service
-  NOTIFICATION_SERVICE_URL: expoConfig.notificationServiceUrl || DEFAULT_DEV_NOTIFICATION_SERVICE_URL,
 
   // Environment
   ENVIRONMENT: expoConfig.environment || 'development',

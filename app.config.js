@@ -80,6 +80,7 @@ export default {
       infoPlist: {
         NSCameraUsageDescription: 'Belle needs camera access for video calls with your matches.',
         NSMicrophoneUsageDescription: 'Belle needs microphone access for voice and video calls.',
+        ITSAppUsesNonExemptEncryption: false,
       },
     },
     android: {

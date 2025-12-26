@@ -37,7 +37,10 @@ export default function FiltersModal({
   languages,
   location,
   setLocation,
-}) {
+  isPremiumUser = false,
+  onShowSubscription = () => {},
+  navigation,
+  }) {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const { width, height } = useWindowDimensions();
   const isSmallDevice = width < 375;
@@ -45,6 +48,16 @@ export default function FiltersModal({
   const handleLocationSelect = (newLocation) => {
     setLocation(newLocation);
     setShowLocationModal(false);
+  };
+
+  const handlePremiumFilterPress = (filterType) => {
+    if (!isPremiumUser) {
+      if (navigation) {
+        navigation.navigate('Subscription');
+      } else {
+        onShowSubscription(filterType);
+      }
+    }
   };
 
   return (
@@ -106,40 +119,7 @@ export default function FiltersModal({
             </TouchableOpacity>
           </View>
 
-          <View style={styles.filterSection}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="star" size={20} color="#000000" />
-              <Text style={styles.sectionTitle}>
-                Interests ({selectedInterests.length} selected)
-              </Text>
-            </View>
-            <View style={styles.interestsGrid}>
-              {interests.map((interest) => (
-                <TouchableOpacity
-                  key={interest.id}
-                  style={[
-                    styles.interestButton,
-                    selectedInterests.includes(interest.id) && styles.interestButtonSelected
-                  ]}
-                  onPress={() => toggleInterest(interest.id)}
-                >
-                  <Ionicons 
-                    name={interest.icon} 
-                    size={16} 
-                    color={selectedInterests.includes(interest.id) ? '#ffffff' : '#8E8E93'} 
-                  />
-                  <Text style={[
-                    styles.interestText,
-                    selectedInterests.includes(interest.id) && styles.interestTextSelected
-                  ]}>
-                    {interest.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <View style={styles.filterSection}>
+  <View style={styles.filterSection}>
             <View style={styles.sectionHeader}>
               <Ionicons name="calendar" size={20} color="#000000" />
               <Text style={styles.sectionTitle}>Age Range: {minAge}-{maxAge}</Text>
@@ -184,6 +164,9 @@ export default function FiltersModal({
             </View>
           </View>
 
+
+        
+
           
 
           <View style={styles.filterSection}>
@@ -212,7 +195,12 @@ export default function FiltersModal({
               <Ionicons name="people" size={20} color="#000000" />
               <Text style={styles.sectionTitle}>Looking For</Text>
             </View>
-            <View style={styles.segmentedControl}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.segmentedControl}
+              contentContainerStyle={{ paddingHorizontal: 4 }}
+            >
               {['Any', 'Male', 'Female'].map((option) => (
                 <TouchableOpacity
                   key={option}
@@ -233,14 +221,63 @@ export default function FiltersModal({
                   )}
                 </TouchableOpacity>
               ))}
-            </View>
+            </ScrollView>
           </View>
 
+          <View style={styles.filterSection}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="star" size={20} color="#000000" />
+              <Text style={styles.sectionTitle}>
+                Interests ({selectedInterests.length} selected)
+                
+              </Text>
+            </View>
+            <View style={styles.interestsGrid}>
+              {interests.map((interest) => (
+                <TouchableOpacity
+                  key={interest.id}
+                  style={[
+                    styles.interestButton,
+                    selectedInterests.includes(interest.id) && styles.interestButtonSelected,
+                    !isPremiumUser && { opacity: 0.5 }
+                  ]}
+                  onPress={() => isPremiumUser ? toggleInterest(interest.id) : handlePremiumFilterPress('Interests')}
+                  disabled={!isPremiumUser}
+                >
+                  <Ionicons 
+                    name={interest.icon} 
+                    size={16} 
+                    color={selectedInterests.includes(interest.id) ? '#ffffff' : '#8E8E93'} 
+                  />
+                  <Text style={[
+                    styles.interestText,
+                    selectedInterests.includes(interest.id) && styles.interestTextSelected
+                  ]}>
+                    {interest.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {!isPremiumUser && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+                <Text style={{ color: '#FFCC30', fontSize: 13 }}>
+                  Premium required to select interests.
+                </Text>
+                <TouchableOpacity
+                  style={{ marginLeft: 10, backgroundColor: '#FFCC30', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 }}
+                  onPress={() => navigation && navigation.navigate('Subscription')}
+                >
+                  <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 13 }}>Go Premium</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
           <View style={styles.filterSection}>
             <View style={styles.sectionHeader}>
               <Ionicons name="globe" size={20} color="#000000" />
               <Text style={styles.sectionTitle}>
                 Languages ({selectedLanguages.length} selected)
+                
               </Text>
             </View>
             <View style={styles.languagesGrid}>
@@ -249,9 +286,11 @@ export default function FiltersModal({
                   key={language.id}
                   style={[
                     styles.languageChip,
-                    selectedLanguages.includes(language.name) && styles.languageChipSelected
+                    selectedLanguages.includes(language.name) && styles.languageChipSelected,
+                    !isPremiumUser && { opacity: 0.5 }
                   ]}
-                  onPress={() => toggleLanguage(language.name)}
+                  onPress={() => isPremiumUser ? toggleLanguage(language.name) : handlePremiumFilterPress('Languages')}
+                  disabled={!isPremiumUser}
                 >
                   <Ionicons 
                     name="flag" 
@@ -267,6 +306,19 @@ export default function FiltersModal({
                 </TouchableOpacity>
               ))}
             </View>
+            {!isPremiumUser && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+                <Text style={{ color: '#FFCC30', fontSize: 13 }}>
+                  Premium required to select languages.
+                </Text>
+                <TouchableOpacity
+                  style={{ marginLeft: 10, backgroundColor: '#FFCC30', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 }}
+                  onPress={() => navigation && navigation.navigate('Subscription')}
+                >
+                  <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 13 }}>Go Premium</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
 
           {/* <View style={styles.filterSection}>

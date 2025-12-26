@@ -44,8 +44,13 @@ function RootNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
   const [isInCall, setIsInCall] = useState(false);
 
+  // While auth state is being checked, show loading
   if (isLoading) {
-    return <LoadingScreen />;
+    return (
+      <CallContext.Provider value={{ isInCall, setIsInCall }}>
+        <LoadingScreen />
+      </CallContext.Provider>
+    );
   }
 
   return (
@@ -64,16 +69,12 @@ function RootNavigator() {
             <Stack.Screen
               name="ChatConversation"
               component={ChatConversationScreen}
-              options={{
-                headerShown: false,
-              }}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="RequestReview"
               component={RequestReviewScreen}
-              options={{
-                headerShown: false,
-              }}
+              options={{ headerShown: false }}
             />
           </>
         ) : (

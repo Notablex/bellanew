@@ -14,7 +14,6 @@
         "APP_VARIANT": "preview"
       },
       "node": "20.11.0",
-      "cli": "npm",
       "ios": {
         "simulator": false,
         "buildConfiguration": "Release"
@@ -28,20 +27,8 @@
     }
   },
   "submit": {
-    "preview": {
-      "ios": {
-        "appleId": "your-apple-id@example.com",
-        "ascAppId": "your-app-store-connect-app-id",
-        "appleTeamId": "your-apple-team-id"
-      }
-    },
-    "production": {
-      "ios": {
-        "appleId": "your-apple-id@example.com",
-        "ascAppId": "your-app-store-connect-app-id",
-        "appleTeamId": "your-apple-team-id"
-      }
-    }
+    "preview": {},
+    "production": {}
   }
 }
 

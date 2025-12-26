@@ -22,14 +22,7 @@ import {
   getSubscriptionStatus,
 } from '../services/iap';
 
-const FeatureItem = React.memo(({ iconName, text, style }) => (
-  <View style={styles.featureBox}>
-    <View style={style}>
-      <Ionicons name={iconName} size={28} color="black" />
-    </View>
-    <Text style={styles.featureText}>{text}</Text>
-  </View>
-));
+// Premium features are displayed as a simple bullet list below.
 
 const PlanOption = React.memo(
   ({
@@ -81,7 +74,7 @@ const fallbackPlans = [
   },
   {
     id: "com.belle.premium.yearly",
-    duration: "1 Year",
+    duration: "6 Months",
     price: "$199.99",
     perMonth: "$16.67/mo",
     isPopular: true,
@@ -90,13 +83,14 @@ const fallbackPlans = [
   },
 ];
 
-const features = [
-  { iconName: "options", text: "Advanced Filters" },
-  { iconName: "flash", text: "Priority Matching" },
-  { iconName: "eye", text: "See Who Likes You" },
-  { iconName: "chatbubbles", text: "Unlimited Messages" },
-  { iconName: "star", text: "Profile Boost" },
-  { iconName: "heart", text: "Unlimited Likes" },
+const PREMIUM_FEATURES = [
+  { iconName: "options", title: "Interests & Languages", subtitle: "Match by shared interests and languages" },
+  { iconName: "school", title: "Education", subtitle: "Filter by education level" },
+  { iconName: "people", title: "Family Plans", subtitle: "Find people who want (or don't want) kids" },
+  { iconName: "baby", title: "Has Kids", subtitle: "Filter by whether someone has children" },
+  { iconName: "heart", title: "Religion", subtitle: "Match based on religious preference" },
+  { iconName: "megaphone", title: "Political Views", subtitle: "Filter by political leaning" },
+  { iconName: "wine", title: "Drink & Smoke", subtitle: "Filter by drinking or smoking habits" },
 ];
 
 export default function Subscription({ navigation }) {
@@ -351,26 +345,9 @@ export default function Subscription({ navigation }) {
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
           >
-            <View style={styles.upgradeSection}>
-              <View style={styles.diamondIconBg}>
-                <Ionicons name="diamond-outline" size={30} color="#000" />
-              </View>
-              <View>
-                <Text style={styles.upgradeTitle}>Upgrade to Premium</Text>
-                <Text style={styles.upgradeSubtitle}>
-                  Enhanced matching with advanced filters
-                </Text>
-              </View>
-            </View>
+            
 
-            {!iapAvailable && (
-              <View style={styles.demoNotice}>
-                <Ionicons name="information-circle" size={20} color="#6B7280" />
-                <Text style={styles.demoNoticeText}>
-                  Demo mode - purchases require a development build
-                </Text>
-              </View>
-            )}
+          
 
             <Text style={styles.sectionTitle}>Choose Your Plan</Text>
             <View style={styles.planContainer}>
@@ -386,16 +363,17 @@ export default function Subscription({ navigation }) {
             </View>
 
             <Text style={[styles.sectionTitle, { marginTop: 32 }]}>
-              What's Included
+              Advanced Filters (Premium)
             </Text>
-            <View style={styles.featuresGrid}>
-              {features.map((feature) => (
-                <FeatureItem
-                  key={feature.text}
-                  iconName={feature.iconName}
-                  text={feature.text}
-                  style={styles.featureIconCircle}
-                />
+            <View style={styles.featureList}>
+              {PREMIUM_FEATURES.map((feature) => (
+                <View key={feature.title} style={styles.bulletItem}>
+                  <Text style={styles.bulletText}>•</Text>
+                  <View style={styles.bulletContent}>
+                    <Text style={styles.bulletTitle}>{feature.title}</Text>
+                    <Text style={styles.bulletSubtitle}>{feature.subtitle}</Text>
+                  </View>
+                </View>
               ))}
             </View>
 
@@ -419,16 +397,35 @@ export default function Subscription({ navigation }) {
 
           <View style={styles.footer}>
             <TouchableOpacity
-              style={[styles.continueButton, (purchasing || !selectedPlan) && styles.continueButtonDisabled]}
+              style={[
+                styles.continueButton,
+                (purchasing || !selectedPlan) && styles.continueButtonDisabled,
+                { marginBottom: 12, backgroundColor: '#fff', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#000' }
+              ]}
+              onPress={() => {
+                Alert.alert('Stripe Payment', 'Save 10% off! You will be redirected to the website to complete your payment via Stripe.');
+                // TODO: Implement actual redirect logic
+              }}
+              disabled={purchasing || !selectedPlan}
+            >
+              <Ionicons name="card" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
+              <Ionicons name="card" size={20} color="#000" style={{ marginRight: 8 }} />
+              <Text style={[styles.continueButtonText, { color: '#000' }]}>Pay with Stripe (Save 10% Off)</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.continueButton,
+                (purchasing || !selectedPlan) && styles.continueButtonDisabled,
+                { backgroundColor: '#000000', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }
+              ]}
               onPress={handlePurchase}
               disabled={purchasing || !selectedPlan}
             >
+              <Ionicons name="logo-apple" size={20} color="#FFFFFF" style={{ marginRight: 8 }} />
               {purchasing ? (
                 <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
-                <Text style={styles.continueButtonText}>
-                  {iapAvailable ? 'Subscribe Now' : 'Continue (Demo)'}
-                </Text>
+                <Text style={styles.continueButtonText}>Pay with Apple Pay</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -612,6 +609,83 @@ const styles = StyleSheet.create({
     color: "#111827",
 
     textAlign: "center",
+  },
+
+  featureList: {
+    marginBottom: 8,
+  },
+  bulletItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  bulletText: {
+    fontSize: 20,
+    lineHeight: 22,
+    marginRight: 10,
+    color: '#111827',
+    width: 20,
+    textAlign: 'center',
+  },
+  bulletContent: {
+    flex: 1,
+  },
+  bulletTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  bulletSubtitle: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginTop: 2,
+  },
+  featureListItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    backgroundColor: '#FAFAFA',
+    marginBottom: 10,
+  },
+  featureTextWrap: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  featureTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  featureListTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  featureListSubtitle: {
+    fontSize: 13,
+    color: '#6B7280',
+    marginTop: 4,
+  },
+  premiumBadge: {
+    backgroundColor: '#FFCC30',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+    marginLeft: 12,
+  },
+  premiumBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  featureIconList: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    marginBottom: 0,
   },
 
   restoreButton: {

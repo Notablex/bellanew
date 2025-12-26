@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Animated, Easing } from 'react-native';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Alert, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -77,6 +78,43 @@ export default function CallView({
   const [remoteStreamURL, setRemoteStreamURL] = useState(null);
   const [connectionState, setConnectionState] = useState('new');
   const [isFrontCamera, setIsFrontCamera] = useState(true);
+  // Animated values for heart and video icons
+  const heartAnim = useRef(new Animated.Value(1)).current;
+  const videoAnim = useRef(new Animated.Value(1)).current;
+  const [matchInterestActive, setMatchInterestActive] = useState(false);
+  // Simulate receiving a match interest during call (replace with real event)
+  useEffect(() => {
+    // TODO: Replace this with actual event from backend/service
+    // setMatchInterestActive(true) when a match interest is received
+  }, []);
+
+  // Animate heart icon when match interest is active
+  useEffect(() => {
+    if (matchInterestActive) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(heartAnim, { toValue: 1.3, duration: 400, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
+          Animated.timing(heartAnim, { toValue: 1, duration: 400, useNativeDriver: true, easing: Easing.inOut(Easing.ease) }),
+        ]),
+      ).start();
+    } else {
+      heartAnim.setValue(1);
+    }
+  }, [matchInterestActive]);
+
+  // Animate video icon flicker when video request is received
+  useEffect(() => {
+    if (videoRequestReceived) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(videoAnim, { toValue: 0.3, duration: 200, useNativeDriver: true }),
+          Animated.timing(videoAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
+        ]),
+      ).start();
+    } else {
+      videoAnim.setValue(1);
+    }
+  }, [videoRequestReceived]);
 
   const webrtcInitialized = useRef(false);
 
@@ -300,17 +338,21 @@ export default function CallView({
             style={[styles.topIconButton, isVideoEnabled && styles.activeTopIcon]}
             onPress={handleVideoToggle}
           >
-            <Ionicons
-              name={isVideoEnabled ? 'videocam' : 'videocam-off'}
-              size={20}
-              color={isVideoEnabled ? '#4CAF50' : '#999999'}
-            />
+            <Animated.View style={{ opacity: videoAnim }}>
+              <Ionicons
+                name={isVideoEnabled ? 'videocam' : 'videocam-off'}
+                size={20}
+                color={isVideoEnabled ? '#4CAF50' : '#999999'}
+              />
+            </Animated.View>
             {videoRequestPending && (
               <View style={styles.pendingDot} />
             )}
           </TouchableOpacity>
           <TouchableOpacity style={styles.topIconButton}>
-            <Ionicons name="heart-outline" size={20} color="#999999" />
+            <Animated.View style={{ transform: [{ scale: heartAnim }] }}>
+              <Ionicons name="heart" size={20} color={matchInterestActive ? '#ff3b30' : '#999999'} />
+            </Animated.View>
           </TouchableOpacity>
         </View>
       </View>
@@ -635,18 +677,18 @@ const styles = StyleSheet.create({
   },
   profileName: {
     color: '#ffffff',
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 2,
   },
   profileTitle: {
     color: '#ffffff',
-    fontSize: 13,
+    fontSize: 18,
     marginBottom: 2,
   },
   profileLocation: {
     color: '#ffffff',
-    fontSize: 12,
+    fontSize: 16,
   },
   profileDetails: {
     flex: 1,

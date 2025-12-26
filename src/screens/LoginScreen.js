@@ -126,7 +126,7 @@ export default function AuthScreen({ navigation }) {
         </View>
 
         <Text style={styles.title}>
-          {isLoginView ? "AppCita" : "Create Account"}
+          {isLoginView ? "Kyn-Dating & Meeting" : "Create Account"}
         </Text>
         <Text style={styles.subtitle}>
           {isLoginView
